@@ -1,0 +1,123 @@
+####################################################################
+#   Cherenkov radiators - GDFIDL tests
+#
+#   Note: all of this works in mm !
+#
+#   created by Eugenio Senes, 05 April 2019
+#
+#   on a model of Yelong Wei, August 2018 (Thanks!!)
+#   and using http://www.gdfidl.de/manual/manual.html#SECTION00340000000000000000
+####################################################################
+
+###############################################################
+-general
+   outfile= RESULTSTO
+   scratch= SCRATCH
+   # define a restartfile might come handy at some point
+
+###############################################################
+define( step_size_r, 0.15) # 0.15mm at 400 GHz, 5 cell/WL
+define( step_size_z, 0.15)
+-mesh
+   xspacing=step_size_r
+   yspacing=step_size_r
+   zspacing=step_size_z
+   perfectmesh=no
+   # boundary planes coordinates
+   pxlow=-57.5, pxhigh=57.5
+   pylow=-42.5, pyhigh=42.5
+   pzlow=-50,     pzhigh=70
+   # boundary conditions
+   cxlow=electric, cxhigh=electric
+   cylow=electric, cyhigh=electric
+   czlow=electric, czhigh=electric
+   # periodicity conditions (time domain=no)
+   xperiodic=no
+   yperiodic=no
+   zperiodic=no
+
+   listplanes #list the simulation box planes
+
+###############################################################
+define(Vacuum, 0)
+-material
+   material= Dielectric, type= normal, epsr=2.1, muer=1
+
+
+###############################################################
+-brick
+  # Fill the universe of metal
+  material=Cu
+  volume=(-INF, INF, -INF, INF, -INF, INF)
+  doit
+
+-stlfile
+  # Load the vacuum
+  file=vacuum.stl
+  material=Vacuum, whichcells = all, taboo = none
+  xscale=1e-3, yscale=1e-3, zscale=1e-3
+  show= yes
+  doit
+
+-stlfile
+  # Load the dielectric
+  file=prism.stl
+  material=Dielectric, whichcells = all, taboo = none
+  xscale=1e-3, yscale=1e-3, zscale=1e-3
+  show= yes
+  doit
+
+###############################################################
+
+# -gbor
+#
+# do i=1, 18, 1
+# material=Absorb
+# originprime = (0,0,-9*L+(i-1)*L)
+# zprimedirection= (0,0,1)
+# rprimedirection= (1,0,0)
+# range=(0,90)
+# clear
+#
+# point=(0, h_top - mat_a - mat_b)
+# point=(0, h_top)
+# point=(Lh2, h_top)
+# point=(Lh2, h_top - mat_a)
+# point=(Lh1, h_top - mat_a - mat_b)
+# point=(0, h_top - mat_a - mat_b)
+# doit
+# enddo
+
+
+-volumeplot
+    eyepos= ( 1.0, 2.30, 0.5 )
+  ## showlines= yes
+    scale= 2.5
+    doit
+
+# -cutplot
+#     normal = y, cutat = 0
+# #    doit
+# -cutplot
+#     normal = z, cutat = 9.167e-3
+# #    doit
+# #end
+
+###############################################################
+# -fdtd #field time dependent calculation
+#    -ports
+#       name= zlow, plane= zlow, modes= 0, doit
+#       name= zhigh, plane= zhigh, modes= 0, doit
+#       name= xlow, plane= xlow, modes= 0, doit
+#       name= xhigh, plane= xhigh, modes= 0, doit
+#       name= ylow, plane= ylow, modes= 0, doit
+#       name= yhigh, plane= yhigh, modes= 0, doit
+#    -lcharge
+#       charge= 1e-9
+#       shape=gaussian
+#       sigma = 0.3e-3 #this goes in meters
+#       xposition= 0.
+#       yposition= 0.
+#       shigh = auto
+# #    -fmonitor
+#
